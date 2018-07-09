@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+	</head>
+	<body>
+		<script type="text/javascript" src="../dist/json.js"></script>
+		<script type="text/javascript">
+			console.log( json.parse( `
+				{
+					a: 'null',
+					"b": 1,
+					'c': [ -Infinity, NaN, 'a', { null: { c: 'NaN' } } ],
+					d: '\\'',
+					e: "\\"",
+					f: -Infinity,
+				}
+			` ) );
+		</script>
+	</body>
+</html>
