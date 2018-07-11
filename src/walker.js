@@ -1,11 +1,5 @@
 // @flow
 
-// interface IToken {
-//   type: Symbol,
-//   value?: any,
-//   pos: Object
-// }
-
 export default class Walker<T> {
   source: T[]
   index: number
@@ -16,7 +10,7 @@ export default class Walker<T> {
   }
 
   eof(): boolean {
-    if ( Array.isArray( this.source ) || typeof this.source === 'string' ) {
+    if ( typeof this.source.length !== 'undefined' ) {
       return this.index === this.source.length
     }
 
@@ -40,13 +34,13 @@ export default class Walker<T> {
     this.index = this.index + n
   }
 
-  read( regex: RegExp ): string|void {
+  read( regex: RegExp ): string | void {
     if ( !regex.source.startsWith( '^' ) ) {
       regex = new RegExp( `^${ regex.source }` )
     }
 
     if ( typeof this.source === 'string' ) {
-      const result = regex.exec( this.source.slice( this.index ) )
+      const result: string[] = regex.exec( this.source.slice( this.index ) )
       if ( result && result[ 0 ] ) {
         this.go( result[ 0 ].length )
         return result[ 0 ]

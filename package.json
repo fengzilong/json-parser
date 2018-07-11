@@ -12,8 +12,8 @@
   "license": "MIT",
   "devDependencies": {
     "@babel/plugin-transform-flow-strip-types": "^7.0.0-beta.53",
-    "@babel/preset-env": "^7.0.0-beta.53",
     "babel-eslint": "^8.2.5",
+    "babel-preset-env": "^1.7.0",
     "bili": "^3.1.2",
     "eslint": "^5.1.0",
     "eslint-config-mo": "latest"

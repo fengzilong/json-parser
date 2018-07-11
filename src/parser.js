@@ -4,17 +4,6 @@ import Walker from './walker'
 import Lexer from './lexer'
 import types from './types'
 
-interface IError {
-  message: string,
-  pos?: number
-}
-
-interface IToken {
-  type: Symbol,
-  value?: any,
-  pos?: Object
-}
-
 export default class Parser {
   walker: Walker<IToken>
 
@@ -84,7 +73,7 @@ export default class Parser {
   object(): Object {
     this.expect( types.OBJECT_START )
 
-    const properties: any = {}
+    const properties: Object = {}
 
     let key
     /* eslint-disable */
@@ -130,7 +119,7 @@ export default class Parser {
 function stripWhiteSpace( tokens ) {
   const striped = []
 
-  for ( const token of tokens ) {
+  for ( const token: IToken of tokens ) {
     if ( token.type !== types.WHITESPACE ) {
       striped.push( token )
     }

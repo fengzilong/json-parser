@@ -1,10 +1,12 @@
 [ignore]
-./dist
+.*/node_modules/.*
+.*/dist/.*
+.*/__tests__/.*
 
 [include]
-./src
 
 [libs]
+flow
 
 [lints]
 

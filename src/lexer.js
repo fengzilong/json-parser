@@ -3,21 +3,10 @@
 import Walker from './walker'
 import types from './types'
 
-interface IError {
-  message: string,
-  pos?: number
-}
-
-// interface IToken {
-//   type: Symbol,
-//   value?: any,
-//   pos: Object
-// }
-
 export default class Lexer {
   walker: Walker<*>
 
-  constructor( source: any ) {
+  constructor( source?: any ) {
     if ( source ) {
       this.walker = new Walker( source )
     }
