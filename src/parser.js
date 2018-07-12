@@ -3,17 +3,26 @@
 import Walker from './walker'
 import Lexer from './lexer'
 import types from './types'
+import showCodeFrame from './utils/show-code-frame'
 
 export default class Parser {
   walker: Walker<IToken>
 
   parse( source: string ) {
-    this.walker = new Walker( stripWhiteSpace( new Lexer().lex( source ) ) )
+    this.source = source
+    let tokens = new Lexer().lex( source )
+    tokens = strip( tokens, [
+      types.WHITESPACE,
+      types.COMMENT
+    ] )
+    this.walker = new Walker( tokens )
     return this.statement()
   }
 
   error( e: IError ) {
-    console.error( e.message )
+    showCodeFrame( this.source, e.pos )
+    console.log( e.message )
+    throw new Error( e.message )
   }
 
   accept( type: Symbol ) {
@@ -30,9 +39,14 @@ export default class Parser {
       this.walker.next()
       return token
     }
-
+    
     this.error( {
-      message: `Expect ${ type.toString() }, but got ${ token.type.toString() }`
+      message: `Expect ${ type.toString() }` + (
+        token ?
+        `, but got ${ token.type.toString() }` :
+        ''
+      ),
+      pos: token && token.pos ? token.pos.start : this.source.length - 1
     } )
   }
 
@@ -64,6 +78,8 @@ export default class Parser {
         } )
         return
       }
+    case types.EOF:
+      this.walker.next()
     default:
       // skip
     }
@@ -91,7 +107,7 @@ export default class Parser {
         break
       }
     }
-
+    
     this.expect( types.OBJECT_END )
 
     return properties
@@ -116,11 +132,11 @@ export default class Parser {
   }
 }
 
-function stripWhiteSpace( tokens ) {
+function strip( tokens, ignoreTypes ) {
   const striped = []
 
   for ( const token: IToken of tokens ) {
-    if ( token.type !== types.WHITESPACE ) {
+    if ( !ignoreTypes.includes( token.type ) ) {
       striped.push( token )
     }
   }

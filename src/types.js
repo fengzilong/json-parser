@@ -1,6 +1,10 @@
 // @flow
 
 export default {
+  // eof
+  EOF: Symbol( 'EOF' ),
+  // comment
+  COMMENT: Symbol( 'COMMENT' ),
   // ,
   COMMA: Symbol( 'COMMA' ),
   // :

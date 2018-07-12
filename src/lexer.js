@@ -23,6 +23,13 @@ export default class Lexer {
     while ( !this.walker.eof() ) {
       tokens.push( this.next() )
     }
+    
+    tokens.push( {
+      type: types.EOF,
+      pos: {
+        start: source.length - 1
+      }
+    } )
 
     return tokens
   }
@@ -34,6 +41,7 @@ export default class Lexer {
   next() {
     const start = this.walker.pos()
     const token: any = (
+      this.comment() ||
       this.string() ||
       this.symbol() ||
       this.number() ||
@@ -44,14 +52,38 @@ export default class Lexer {
     const end = this.walker.pos()
 
     token.pos = { start, end }
+    token.frame = this.walker.slice( start, end )
 
     return token
   }
+  
+  comment(): IToken | void {
+    const char = this.walker.current()
+    
+    // '//' or '/*' or '/ *'
+    if ( this.walker.peep( /(\/\/|\/\s*\*)/ ) ) {
+      return {
+        type: types.COMMENT,
+        value: this.readComment()
+      }
+    }
+  }
+  
+  readComment(): string {
+    const start = this.walker.pos()
+    let terminator = null
+    if ( this.walker.peep( '//' ) ) {
+      terminator = /\n/
+    } else {
+      terminator = /\*\s*\//
+    }
+    return this.walker.readUtil( terminator )
+  }
 
-  string() {
+  string(): IToken | void {
     const char = this.walker.current()
 
-    if ( char === `'` || char === `"` ) {
+    if ( char === `'` || char === `"` || char === '`' ) {
       return {
         type: types.STRING,
         value: this.readString( char )
@@ -86,7 +118,7 @@ export default class Lexer {
     return str
   }
 
-  symbol() {
+  symbol(): IToken | void {
     const char = this.walker.current()
 
     switch ( char ) {
@@ -125,7 +157,7 @@ export default class Lexer {
     }
   }
 
-  whitespace() {
+  whitespace(): IToken | void {
     const pattern = /\s+/
     if ( pattern.test( this.walker.current() ) ) {
       return {
@@ -135,10 +167,12 @@ export default class Lexer {
     }
   }
 
-  number() {
+  number(): IToken | void {
     const char = this.walker.current()
-
+    
     if (
+      this.walker.peep( '-Infinity' ) ||
+      this.walker.peep( 'Infinity' ) ||
       /\d+/.test( char ) ||
       char === '.' ||
       char === '+' ||
@@ -151,7 +185,7 @@ export default class Lexer {
     }
   }
 
-  readNumber() {
+  readNumber(): number {
     let num = ''
     let dot = false
     const pattern = /\d+/
@@ -192,7 +226,7 @@ export default class Lexer {
     return parseFloat( prefix + num )
   }
 
-  ident() {
+  ident(): IToken | void {
     if ( /[$_a-zA-Z]+/.test( this.walker.current() ) ) {
       return {
         type: types.IDENT,
@@ -201,7 +235,7 @@ export default class Lexer {
     }
   }
 
-  unknown() {
+  unknown(): IToken {
     const char = this.walker.current()
     this.walker.next()
     return {

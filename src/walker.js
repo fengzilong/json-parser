@@ -8,6 +8,10 @@ export default class Walker<T> {
     this.source = source
     this.index = 0
   }
+  
+  error( e: IError ) {
+    console.error( e.message )
+  }
 
   eof(): boolean {
     if ( typeof this.source.length !== 'undefined' ) {
@@ -46,5 +50,51 @@ export default class Walker<T> {
         return result[ 0 ]
       }
     }
+  }
+  
+  slice( start: number, end: number ): T[] {
+    return this.source.slice( start, end )
+  }
+  
+  peep( test: string | RegExp ): boolean {
+    const rest = this.source.slice( this.index )
+    if ( typeof test === 'string' ) {
+      return this.source.slice( this.index ).startsWith( test )
+    }
+    
+    if ( test instanceof RegExp ) {
+      if ( !test.source.startsWith( '^' ) ) {
+        test = new RegExp( `^${ test.source }` )
+      }
+      
+      return test.test( this.source.slice( this.index ) )
+    }
+    
+    throw new Error( 'Expected string or regexp as params for walker.peep' )
+    
+    return false
+  }
+  
+  readUtil( test ): T[] {
+    if ( !test.source.startsWith( '^' ) ) {
+      test = new RegExp( `^${ test.source }` )
+    }
+    
+    const start = this.index
+
+    while( true ) {
+      if ( this.index === this.source.length ) {
+        break
+      }
+      
+      if ( typeof this.read( test ) === 'undefined' ) {
+        this.index = this.index + 1
+      } else {
+        break
+      }
+    }
+    
+    const end = this.index
+    return this.source.slice( start, end )
   }
 }
