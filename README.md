@@ -1,5 +1,7 @@
 # json-parser
 
+json-parser can be used to parse non-standard json
+
 ## Usage
 
 ```js
